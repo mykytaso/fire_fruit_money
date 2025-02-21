@@ -19,7 +19,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        return CategoryListSerializer if self.action == "list" else CategorySerializer
+        return (
+            CategoryListSerializer
+            if self.action in ("list", "retrieve")
+            else CategorySerializer
+        )
 
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
@@ -33,7 +37,9 @@ class TagViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        return TagListSerializer if self.action == "list" else TagSerializer
+        return (
+            TagListSerializer if self.action in ("list", "retrieve") else TagSerializer
+        )
 
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
@@ -47,7 +53,11 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        return ExpenseListSerializer if self.action == "list" else ExpenseSerializer
+        return (
+            ExpenseListSerializer
+            if self.action in ("list", "retrieve")
+            else ExpenseSerializer
+        )
 
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
