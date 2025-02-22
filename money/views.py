@@ -13,7 +13,7 @@ from money.serializers import (
 
 class CategoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        queryset = Category.objects.all()
+        queryset = Category.objects.select_related("family")
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
         return queryset
@@ -31,7 +31,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class TagViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        queryset = Tag.objects.all()
+        queryset = Tag.objects.select_related("family", "category")
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
         return queryset
@@ -47,9 +47,11 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
-        queryset = Expense.objects.all()
+        queryset = Expense.objects.select_related("family", "category", "tag")
+
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
+
         return queryset
 
     def get_serializer_class(self):
