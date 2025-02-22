@@ -352,3 +352,11 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/django,python,pycharm+all
+
+
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yaml
+money/management
