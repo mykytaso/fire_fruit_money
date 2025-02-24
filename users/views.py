@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Q
 from rest_framework import generics, viewsets, mixins
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -62,6 +63,7 @@ class InviteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
 
+    @transaction.atomic
     def perform_update(self, serializer):
         status = serializer.validated_data.get("status")
 
