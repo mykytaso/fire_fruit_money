@@ -4,9 +4,6 @@ from users.models import Family
 
 
 class Category(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     family = models.ForeignKey(
         Family, on_delete=models.CASCADE, related_name="categories"
     )
@@ -15,14 +12,14 @@ class Category(models.Model):
     icon = models.CharField(max_length=255)
     limit = models.DecimalField(max_digits=12, decimal_places=2)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return self.title
 
 
 class Tag(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="tags")
     title = models.CharField(max_length=100)
     color = models.CharField(max_length=6)
@@ -30,14 +27,14 @@ class Tag(models.Model):
         Category, on_delete=models.CASCADE, related_name="tags"
     )
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return self.title
 
 
 class Expense(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     family = models.ForeignKey(
         Family, on_delete=models.CASCADE, related_name="expenses"
     )
@@ -49,6 +46,9 @@ class Expense(models.Model):
     )
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     date_time = models.DateTimeField(auto_now_add=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.category}: {self.amount} at {self.date_time.strftime('%Y-%m-%d %H:%M:%S')}"
