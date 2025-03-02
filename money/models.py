@@ -22,7 +22,7 @@ class Category(models.Model):
 
 class Tag(models.Model):
     family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="tags")
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     color = models.CharField(max_length=6)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="tags"
