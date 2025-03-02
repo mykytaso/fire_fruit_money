@@ -43,9 +43,7 @@ class Expense(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="expenses"
     )
-    tag = models.ForeignKey(
-        Tag, on_delete=models.CASCADE, blank=True, null=True, related_name="expenses"
-    )
+    tag = models.ManyToManyField(Tag, related_name="expenses")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     date_time = models.DateTimeField(auto_now_add=True)
 

@@ -83,7 +83,7 @@ class TagViewSet(BaseMoneyViewSet):
 
 class ExpenseViewSet(BaseMoneyViewSet):
     def get_queryset(self):
-        queryset = Expense.objects.select_related("family", "category", "tag")
+        queryset = Expense.objects.select_related("family", "category").prefetch_related("tag")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
