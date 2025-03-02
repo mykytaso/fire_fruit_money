@@ -22,7 +22,7 @@ class Category(models.Model):
 
 class Tag(models.Model):
     family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="tags")
-    title = models.CharField(max_length=100, unique=True)
+    title = models.CharField(max_length=100)
     color = models.CharField(max_length=6)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="tags"
@@ -31,6 +31,13 @@ class Tag(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["family", "title"], name="unique_family_title"
+            ),
+        ]
 
     def __str__(self):
         return self.title
