@@ -14,6 +14,7 @@ class Category(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.title
@@ -29,6 +30,7 @@ class Tag(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.title
@@ -49,6 +51,7 @@ class Expense(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return f"{self.category}: {self.amount} at {self.date_time.strftime('%Y-%m-%d %H:%M:%S')}"
