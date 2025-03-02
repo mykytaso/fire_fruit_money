@@ -24,6 +24,7 @@ class CategoryListSerializer(CategorySerializer):
     family = serializers.StringRelatedField()
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    deleted_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -47,6 +48,8 @@ class TagListSerializer(TagSerializer):
     category = serializers.StringRelatedField()
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    deleted_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
 
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,9 +63,16 @@ class ExpenseSerializer(serializers.ModelSerializer):
             "date_time",
             "created_at",
             "updated_at",
-            "deleted_at"
+            "deleted_at",
         ]
-        read_only_fields = ["id", "family", "date_time", "created_at", "updated_at", "deleted_at"]
+        read_only_fields = [
+            "id",
+            "family",
+            "date_time",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
 
 
 class ExpenseListSerializer(ExpenseSerializer):
@@ -72,4 +82,4 @@ class ExpenseListSerializer(ExpenseSerializer):
     date_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-
+    deleted_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
