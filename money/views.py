@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -17,10 +15,6 @@ from money.serializers import (
 
 class BaseMoneyViewSet(viewsets.ModelViewSet):
     """A base ViewSet that provides common functionality for money-related views."""
-
-    def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save()
 
     def queryset_last_sync_time_filter(self, queryset):
         last_sync_time = self.request.query_params.get("last_sync_time")
@@ -61,6 +55,23 @@ class CategoryViewSet(BaseMoneyViewSet):
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
 
+    def perform_destroy(self, instance):
+        tags = instance.tags.all()
+        expenses = instance.expenses.all()
+
+        if expenses:
+            for expense in expenses:
+                expense.deleted_at = timezone.now()
+                expense.save()
+
+        if tags:
+            for tag in tags:
+                tag.deleted_at = timezone.now()
+                tag.save()
+
+        instance.deleted_at = timezone.now()
+        instance.save()
+
 
 class TagViewSet(BaseMoneyViewSet):
     def get_queryset(self):
@@ -80,10 +91,22 @@ class TagViewSet(BaseMoneyViewSet):
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
 
+    def perform_destroy(self, instance):
+        expenses = instance.expenses.all()
+
+        if expenses:
+            for expense in expenses:
+                expense.tag.remove(instance)
+
+        instance.deleted_at = timezone.now()
+        instance.save()
+
 
 class ExpenseViewSet(BaseMoneyViewSet):
     def get_queryset(self):
-        queryset = Expense.objects.select_related("family", "category").prefetch_related("tag")
+        queryset = Expense.objects.select_related(
+            "family", "category"
+        ).prefetch_related("tag")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
@@ -101,3 +124,7 @@ class ExpenseViewSet(BaseMoneyViewSet):
 
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save()
