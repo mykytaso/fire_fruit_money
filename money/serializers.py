@@ -15,8 +15,9 @@ class CategorySerializer(serializers.ModelSerializer):
             "limit",
             "created_at",
             "updated_at",
+            "deleted_at",
         ]
-        read_only_fields = ["id", "family", "created_at", "updated_at"]
+        read_only_fields = ["id", "family", "created_at", "updated_at", "deleted_at"]
 
 
 class CategoryListSerializer(CategorySerializer):
@@ -36,8 +37,9 @@ class TagSerializer(serializers.ModelSerializer):
             "category",
             "created_at",
             "updated_at",
+            "deleted_at",
         ]
-        read_only_fields = ["id", "family", "created_at", "updated_at"]
+        read_only_fields = ["id", "family", "created_at", "updated_at", "deleted_at"]
 
 
 class TagListSerializer(TagSerializer):
@@ -58,8 +60,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
             "date_time",
             "created_at",
             "updated_at",
+            "deleted_at"
         ]
-        read_only_fields = ["id", "family", "date_time", "created_at", "updated_at"]
+        read_only_fields = ["id", "family", "date_time", "created_at", "updated_at", "deleted_at"]
 
 
 class ExpenseListSerializer(ExpenseSerializer):
