@@ -97,6 +97,8 @@ class TagViewSet(BaseMoneyViewSet):
         if expenses:
             for expense in expenses:
                 expense.tag.remove(instance)
+                expense.updated_at = timezone.now()
+                expense.save()
 
         instance.deleted_at = timezone.now()
         instance.save()
