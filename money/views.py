@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 
 from money.models import Category, Tag, Expense
@@ -11,11 +12,36 @@ from money.serializers import (
 )
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class BaseMoneyViewSet(viewsets.ModelViewSet):
+    """A base ViewSet that provides common functionality for money-related views."""
+
+    def queryset_last_sync_time_filter(self, queryset):
+        last_sync_time = self.request.query_params.get("last_sync_time")
+        if last_sync_time:
+            queryset = queryset.filter(updated_at__gte=last_sync_time)
+        return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "last_sync_time",
+                type=str,
+                description="Filter by last sync time in ISO 8601 format. Example: `?last_sync_time=2025-01-02T14:05:21Z` (UTC).",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+class CategoryViewSet(BaseMoneyViewSet):
     def get_queryset(self):
         queryset = Category.objects.select_related("family")
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
+
+        queryset = self.queryset_last_sync_time_filter(queryset)
+
         return queryset
 
     def get_serializer_class(self):
@@ -29,11 +55,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
         serializer.save(family=self.request.user.family)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(BaseMoneyViewSet):
     def get_queryset(self):
         queryset = Tag.objects.select_related("family", "category")
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
+
+        queryset = self.queryset_last_sync_time_filter(queryset)
+
         return queryset
 
     def get_serializer_class(self):
@@ -45,12 +74,14 @@ class TagViewSet(viewsets.ModelViewSet):
         serializer.save(family=self.request.user.family)
 
 
-class ExpenseViewSet(viewsets.ModelViewSet):
+class ExpenseViewSet(BaseMoneyViewSet):
     def get_queryset(self):
         queryset = Expense.objects.select_related("family", "category", "tag")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(family=self.request.user.family)
+
+        queryset = self.queryset_last_sync_time_filter(queryset)
 
         return queryset
 
