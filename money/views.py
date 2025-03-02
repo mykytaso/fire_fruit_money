@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 
@@ -14,6 +17,10 @@ from money.serializers import (
 
 class BaseMoneyViewSet(viewsets.ModelViewSet):
     """A base ViewSet that provides common functionality for money-related views."""
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save()
 
     def queryset_last_sync_time_filter(self, queryset):
         last_sync_time = self.request.query_params.get("last_sync_time")
