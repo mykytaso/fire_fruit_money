@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -55,6 +56,7 @@ class CategoryViewSet(BaseMoneyViewSet):
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
 
+    @transaction.atomic
     def perform_destroy(self, instance):
         tags = instance.tags.all()
         expenses = instance.expenses.all()
@@ -91,6 +93,7 @@ class TagViewSet(BaseMoneyViewSet):
     def perform_create(self, serializer):
         serializer.save(family=self.request.user.family)
 
+    @transaction.atomic
     def perform_destroy(self, instance):
         expenses = instance.expenses.all()
 
