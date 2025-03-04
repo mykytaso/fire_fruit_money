@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import generics, viewsets, mixins, status
@@ -51,31 +52,76 @@ class FamilyViewSet(
 
     @transaction.atomic
     @action_decorator(
-        methods=["PUT"],
+        methods=["GET"],
         detail=True,
         url_path="leave",
     )
     def leave_family(self, request, pk=None):
         family = self.get_object()
-        user = request.user
+        member = request.user
 
-        if not user in family.members.all():
+        if not member in family.members.all():
             return Response(
-                {"detail": f"{user.email} is not a member of this family."},
+                {"detail": f"{member.email} is not a member of this family."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if user == family.admin:
+        if member == family.admin:
             return Response(
                 {"detail": "Admin cannot leave the family."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user.family = Family.objects.get(admin=user)
-        user.save()
+        member.family = Family.objects.get(admin=member)
+        member.save()
 
         return Response(
             {"detail": "You successfully left the family"}, status=status.HTTP_200_OK
+        )
+
+    @transaction.atomic
+    @action_decorator(
+        methods=["GET"],
+        detail=True,
+        url_path="delete",
+    )
+    def delete_member(self, request, pk=None):
+        family = self.get_object()
+        admin = request.user
+
+        if admin != family.admin:
+            return Response(
+                {"detail": "Only the family admin can manage members."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        member_email = self.request.query_params.get("member")
+
+        if not member_email:
+            return Response(
+                {"detail": "Use parameters to delete member from family. Example: /?member=user@mail.com"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not family.members.filter(email=member_email).exists():
+            return Response(
+                {"detail": f"{member_email} is not a member of your family."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if member_email == admin.email:
+            return Response(
+                {"detail": "Admin cannot leave the family."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        member = get_user_model().objects.get(email=member_email)
+        member.family = Family.objects.get(admin=member)
+        member.save()
+
+        return Response(
+            {"detail": f"You successfully deleted {member} from your family."},
+            status=status.HTTP_200_OK,
         )
 
 
@@ -102,13 +148,13 @@ class InviteViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_update(self, serializer):
-        status = serializer.validated_data.get("status")
+        invite_status = serializer.validated_data.get("status")
 
-        if status == "decline":
+        if invite_status == "decline":
             serializer.instance.delete()
             return
 
-        elif status == "accept":
+        elif invite_status == "accept":
             sender = serializer.instance.sender
             recipient = serializer.instance.recipient
 
