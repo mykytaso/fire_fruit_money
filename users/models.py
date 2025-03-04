@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 
 from fire_fruit_money import settings
+from fire_fruit_money.settings import AUTH_USER_MODEL
 
 
 class UserManager(DjangoUserManager):
@@ -42,6 +43,9 @@ class UserManager(DjangoUserManager):
 
 class Family(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    admin = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -98,6 +102,8 @@ class User(AbstractUser):
 @receiver(post_save, sender=get_user_model())
 def create_family_for_user(sender, instance, created, **kwargs):
     if created:
-        family = Family.objects.create(name=f"{instance.email}'s Family")
+        family = Family.objects.create(
+            name=f"{instance.email}'s Family", admin=instance
+        )
         instance.family = family
         instance.save()
