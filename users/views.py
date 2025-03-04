@@ -1,9 +1,11 @@
 from django.db import transaction
 from django.db.models import Q
-from rest_framework import generics, viewsets, mixins
+from rest_framework import generics, viewsets, mixins, status
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from rest_framework.decorators import action as action_decorator
+
 
 from users.models import Invite, Family
 from users.serializers import (
@@ -46,6 +48,35 @@ class FamilyViewSet(
         if not user.is_staff:
             queryset = queryset.filter(members=user)
         return queryset
+
+    @transaction.atomic
+    @action_decorator(
+        methods=["PUT"],
+        detail=True,
+        url_path="leave",
+    )
+    def leave_family(self, request, pk=None):
+        family = self.get_object()
+        user = request.user
+
+        if not user in family.members.all():
+            return Response(
+                {"detail": f"{user.email} is not a member of this family."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user == family.admin:
+            return Response(
+                {"detail": "Admin cannot leave the family."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.family = Family.objects.get(admin=user)
+        user.save()
+
+        return Response(
+            {"detail": "You successfully left the family"}, status=status.HTTP_200_OK
+        )
 
 
 class InviteViewSet(viewsets.ModelViewSet):
