@@ -43,7 +43,9 @@ class UserManager(DjangoUserManager):
 
 
 class Family(models.Model):
-    admin = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="family_admin")
+    admin = models.OneToOneField(
+        AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="family_admin"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -103,8 +105,12 @@ class User(AbstractUser):
 @receiver(post_save, sender=get_user_model())
 def create_family_for_user(sender, instance, created, **kwargs):
     if created:
-        family = Family.objects.create(
-            name=f"{instance.email}'s Family", admin=instance
-        )
+        family = Family.objects.create(admin=instance)
+
+        # Add the user to the family
+        family.members.add(instance)
+        family.save()
+
+        # Update the user's family field
         instance.family = family
         instance.save()
