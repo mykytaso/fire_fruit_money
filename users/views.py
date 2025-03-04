@@ -28,18 +28,24 @@ class LoginUserView(ObtainAuthToken):
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         return self.request.user
 
 
 class FamilyViewSet(
-    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
 ):
-    permission_classes = (IsAdminUser,)
     serializer_class = FamilySerializer
-    queryset = Family.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Family.objects.all()
+        if not user.is_staff:
+            queryset = queryset.filter(members=user)
+        return queryset
 
 
 class InviteViewSet(viewsets.ModelViewSet):
@@ -75,12 +81,8 @@ class InviteViewSet(viewsets.ModelViewSet):
             sender = serializer.instance.sender
             recipient = serializer.instance.recipient
 
-            sender_family = sender.family
-            recipient_family = recipient.family
-
-            recipient.family = sender_family
+            recipient.family = sender.family
             recipient.save()
 
-            recipient_family.delete()
             serializer.instance.delete()
             return
