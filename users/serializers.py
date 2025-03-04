@@ -78,11 +78,12 @@ class AuthTokenSerializer(serializers.Serializer):
 
 
 class FamilySerializer(serializers.ModelSerializer):
+    admin = StringRelatedField(many=False, read_only=True)
     members = StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Family
-        fields = ["id", "name", "members"]
+        fields = ["id", "admin", "members"]
 
 
 class InviteSerializer(serializers.ModelSerializer):
