@@ -360,3 +360,7 @@ pyrightconfig.json
 Dockerfile
 docker-compose.yaml
 money/management
+
+# Migrations
+.migrations
+migrations

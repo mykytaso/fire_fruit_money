@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 
+from fire_fruit_money import settings
+
 
 class UserManager(DjangoUserManager):
     use_in_migrations = True
@@ -39,10 +41,38 @@ class UserManager(DjangoUserManager):
 
 
 class Family(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
+
+
+class Invite(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "pending"),
+        ("accept", "accept"),
+        ("decline", "decline"),
+    )
+
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_invites"
+    )
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="received_invites",
+    )
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="pending")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["sender", "recipient"], name="unique_sender_recipient"
+            ),
+        ]
 
 
 class User(AbstractUser):
@@ -56,7 +86,7 @@ class User(AbstractUser):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name="users",
+        related_name="members",
     )
 
     USERNAME_FIELD = "email"
