@@ -60,12 +60,14 @@ class FamilyViewSet(
         family = self.get_object()
         member = request.user
 
+        # Ensure that the user who wants to leave the family is a member of this family.
         if not member in family.members.all():
             return Response(
                 {"detail": f"{member.email} is not a member of this family."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Ensure that the user who wants to leave the family is not the admin of this family.
         if member == family.admin:
             return Response(
                 {"detail": "Admin cannot leave the family."},
@@ -89,6 +91,7 @@ class FamilyViewSet(
         family = self.get_object()
         admin = request.user
 
+        # Ensure that the user who wants to delete a family member is the admin of this family.
         if admin != family.admin:
             return Response(
                 {"detail": "Only the family admin can manage members."},
@@ -97,18 +100,21 @@ class FamilyViewSet(
 
         member_email = self.request.query_params.get("member")
 
+        # Ensure that the member parameter is provided.
         if not member_email:
             return Response(
                 {"detail": "Use parameters to delete member from family. Example: /?member=user@mail.com"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Ensure that the member parameter is a valid email.
         if not family.members.filter(email=member_email).exists():
             return Response(
                 {"detail": f"{member_email} is not a member of your family."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Ensure that the member parameter is not the admin.
         if member_email == admin.email:
             return Response(
                 {"detail": "Admin cannot leave the family."},
@@ -142,7 +148,6 @@ class InviteViewSet(viewsets.ModelViewSet):
 
         return InviteSerializer
 
-    #
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
 
