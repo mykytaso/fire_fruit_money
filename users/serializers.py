@@ -78,11 +78,12 @@ class AuthTokenSerializer(serializers.Serializer):
 
 
 class FamilySerializer(serializers.ModelSerializer):
+    admin = StringRelatedField(many=False, read_only=True)
     members = StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Family
-        fields = ["id", "name", "members"]
+        fields = ["id", "admin", "members"]
 
 
 class InviteSerializer(serializers.ModelSerializer):
@@ -113,10 +114,12 @@ class InviteSerializer(serializers.ModelSerializer):
                 {"recipient": "You cannot invite yourself to your own family."}
             )
 
-        # Ensure that an invitation between the sender and recipient does not already exist
+        # Ensure that the sender has not already sent an invitation to the recipient
         if Invite.objects.filter(sender=sender, recipient=recipient).exists():
             raise serializers.ValidationError(
-                {"recipient": "You have already sent an invite to this user."}
+                {
+                    "recipient": f"You have already sent an invitation to {recipient.email}."
+                }
             )
 
         # Ensure that the recipient has not already sent an invitation to the sender
@@ -127,10 +130,18 @@ class InviteSerializer(serializers.ModelSerializer):
                 }
             )
 
-        # Ensure thar recipient doesn't have any member in their family
+        # Ensure that the recipient is not already in the sender's family
+        if recipient in sender.family.members.all():
+            raise serializers.ValidationError(
+                {"recipient": f"{recipient.email} is already in your family."}
+            )
+
+        # Ensure that the recipient doesn't have any member in their family
         if recipient.family.members.count() > 1:
             raise serializers.ValidationError(
-                {"recipient": f"{recipient.email} has family with multiple members."}
+                {
+                    "recipient": f"{recipient.email} has already family with multiple members."
+                }
             )
 
         data["recipient"] = recipient
