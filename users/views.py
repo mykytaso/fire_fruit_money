@@ -57,6 +57,12 @@ class FamilyViewSet(
         url_path="leave",
     )
     def leave_family(self, request, pk=None):
+        """
+        Allows a user to leave a family.
+
+        This action can only be performed by a family member who is not the admin.
+        The user must be a member of the family they are trying to leave.
+        """
         family = self.get_object()
         member = request.user
 
@@ -88,6 +94,12 @@ class FamilyViewSet(
         url_path="delete",
     )
     def delete_member(self, request, pk=None):
+        """
+        Delete a member from the family.
+
+        This action can only be performed by the family admin. The admin cannot delete themselves.
+        The member to be deleted is specified via the 'member' query parameter.
+        """
         family = self.get_object()
         admin = request.user
 
