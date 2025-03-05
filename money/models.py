@@ -1,3 +1,5 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
 
 from users.models import Family
@@ -50,7 +52,7 @@ class Expense(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="expenses"
     )
-    tag = models.ManyToManyField(Tag, related_name="expenses")
+    tag = models.ForeignKey(Tag, on_delete=CASCADE, related_name="expenses")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     date_time = models.DateTimeField(auto_now_add=True)
 
