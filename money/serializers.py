@@ -78,7 +78,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
 class ExpenseListSerializer(ExpenseSerializer):
     family = serializers.StringRelatedField()
     category = serializers.StringRelatedField()
-    tag = serializers.StringRelatedField(many=True)
+    tag = serializers.StringRelatedField(many=False)
     date_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")

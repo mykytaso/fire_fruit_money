@@ -99,7 +99,7 @@ class TagViewSet(BaseMoneyViewSet):
 
         if expenses:
             for expense in expenses:
-                expense.tag.remove(instance)
+                expense.tag = None
                 expense.updated_at = timezone.now()
                 expense.save()
 
