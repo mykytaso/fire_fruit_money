@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG_VALUE", default=False)
 
 ALLOWED_HOSTS = [
-    "127.0.0.1",
+    "127.0.0.1", "test.zero-software.com/firefruit/", "test.zero-software.com"
 ]
 
 INTERNAL_IPS = [
