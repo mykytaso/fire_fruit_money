@@ -26,7 +26,7 @@ class BaseMoneyViewSet(viewsets.ModelViewSet):
     @extend_schema(
         parameters=[
             OpenApiParameter(
-                "last_sync_time",
+                name="last_sync_time",
                 type=str,
                 description="Filter by last sync time in ISO 8601 format. Example: `?last_sync_time=2025-01-02T14:05:21Z` (UTC).",
             )
