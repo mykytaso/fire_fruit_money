@@ -364,3 +364,6 @@ money/management
 # Migrations
 .migrations
 migrations
+
+static
+.static
