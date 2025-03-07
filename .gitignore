@@ -367,3 +367,8 @@ migrations
 
 static
 .static
+
+helpers
+.helpers
+users/helpers
+users/.helpers
