@@ -106,8 +106,8 @@ DATABASES = {
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Bus Station API",
-    "DESCRIPTION": "Order tickets for your bus trip",
+    "TITLE": "Fire Fruit API",
+    "DESCRIPTION": "Spend tracking service.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEM": False,
     "SWAGGER_UI_SETTINGS": {
