@@ -42,6 +42,15 @@ class TagSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "family", "created_at", "updated_at", "deleted_at"]
 
+    def validate(self, data):
+        # Ensure that the category is not deleted
+        if data["category"].deleted_at:
+            raise serializers.ValidationError(
+                {"category": "Cannot create tag for deleted category."}
+            )
+
+        return data
+
 
 class TagListSerializer(TagSerializer):
     family = serializers.StringRelatedField()
@@ -73,6 +82,21 @@ class ExpenseSerializer(serializers.ModelSerializer):
             "updated_at",
             "deleted_at",
         ]
+
+    def validate(self, data):
+        # Ensure that the category is not deleted
+        if data["category"].deleted_at:
+            raise serializers.ValidationError(
+                {"category": "Cannot create expense with deleted category."}
+            )
+
+        # Ensure that the tag is not deleted
+        if data["tag"] and data["tag"].deleted_at:
+            raise serializers.ValidationError(
+                {"tag": "Cannot create expense with deleted tag."}
+            )
+
+        return data
 
 
 class ExpenseListSerializer(ExpenseSerializer):
