@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets, mixins, status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
@@ -52,7 +53,7 @@ class FamilyViewSet(
 
     @transaction.atomic
     @action_decorator(
-        methods=["GET"],
+        methods=["POST"],
         detail=True,
         url_path="leave",
     )
@@ -89,7 +90,7 @@ class FamilyViewSet(
 
     @transaction.atomic
     @action_decorator(
-        methods=["GET"],
+        methods=["POST"],
         detail=True,
         url_path="delete",
     )
