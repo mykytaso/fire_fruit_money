@@ -1,13 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets, mixins, status
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.decorators import action as action_decorator
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rest_framework.decorators import action as action_decorator
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import Invite, Family
 from users.serializers import (
@@ -23,6 +22,27 @@ from users.serializers import (
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = ()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = self.perform_create(serializer)
+        refresh = RefreshToken.for_user(user)
+
+        response_data = {
+            "id": user.id,
+            "email": user.email,
+            "is_staff": user.is_staff,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        return serializer.save()
 
 
 class LoginUserView(ObtainAuthToken):
@@ -116,7 +136,9 @@ class FamilyViewSet(
         # Ensure that the member parameter is provided.
         if not member_email:
             return Response(
-                {"detail": "Use parameters to delete member from family. Example: /?member=user@mail.com"},
+                {
+                    "detail": "Use parameters to delete member from family. Example: /?member=user@mail.com"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
