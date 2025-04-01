@@ -2,20 +2,17 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 from rest_framework import generics, viewsets, mixins, status
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action as action_decorator
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import Invite, Family
 from users.serializers import (
     UserSerializer,
-    AuthTokenSerializer,
     InviteSerializer,
     InviteListSerializer,
     InviteUpdateSerializer,
-    FamilySerializer,
+    FamilySerializer, date_time_format,
 )
 
 
@@ -36,6 +33,8 @@ class CreateUserView(generics.CreateAPIView):
             "is_staff": user.is_staff,
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "refresh_expiration": date_time_format(refresh),
+            "access_expiration": date_time_format(refresh.access_token),
         }
 
         headers = self.get_success_headers(serializer.data)
@@ -43,11 +42,6 @@ class CreateUserView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         return serializer.save()
-
-
-class LoginUserView(ObtainAuthToken):
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-    serializer_class = AuthTokenSerializer
 
 
 class ManageUserView(generics.RetrieveUpdateAPIView):

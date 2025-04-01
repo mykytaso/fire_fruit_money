@@ -15,9 +15,9 @@ router.register("families", FamilyViewSet, basename="families")
 
 urlpatterns = [
     path("register/", CreateUserView.as_view(), name="register"),
-    path("login/", TokenObtainPairView.as_view(), name="login"),
-    path("token_refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token_verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain"),
+    path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("me/", ManageUserView.as_view(), name="me"),
     path("", include(router.urls)),
 ]
